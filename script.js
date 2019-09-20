@@ -11,6 +11,10 @@ function checkFormEmpty(formId){
             formId.parentNode.classList.add('input-invalid');
             emp = true;
         } else if (chk){
+            let message = formId.id + " is required"
+            removeChild(formId);
+            appendNewChild(formId, message);
+            formId.parentNode.classList.add('input-invalid');
             emp = true;
         }
     }
@@ -39,6 +43,7 @@ function appendNewChild(formId, message){
         child.innerHTML = "<span style='color:#FF0000'> *" + message +  " </span>";
         child.classList.add("error");
         child.classList.add("input-hint");
+        formId.parentNode.classList.remove('input-valid');
         formId.parentNode.classList.add('input-invalid');
         formId.parentElement.appendChild(child);
     } else {
@@ -46,6 +51,7 @@ function appendNewChild(formId, message){
         child.innerHTML = "<span style='color:#FF0000'> *" + message +  " </span>";
         child.classList.add("input-hint")
         child.classList.add("error");
+        formId.parentNode.parentNode.classList.remove("input-valid");
         formId.parentNode.parentNode.classList.add("input-invalid");
         formId.parentElement.parentElement.appendChild(child);
     }
@@ -64,6 +70,14 @@ function validInputAction(formId){
         formId.parentNode.classList.add('input-valid');
     } else if (formId.id == "car-year"){
         formId.parentNode.parentNode.classList.add('input-valid');
+    }
+}
+
+function invalidInputAction(formId, message){
+    if (formId.id != "car-year"){
+        formId.parentNode.classList.add('input-invalid');
+    } else if (formId.id == "car-year"){
+        formId.parentNode.parentNode.classList.add('input-invalid');
     }
 }
 
@@ -137,51 +151,100 @@ function validateDateForm(){
     let date = document.getElementById("start-date");
     let dateVal = date.value.split("-");
     let emp = checkFormEmpty(date);
+    let chk = checkIfErrorExists(date);
     let day = d.getDate();
     let month = d.getMonth();
     let year = d.getFullYear();
     if (!emp){
         if (dateVal[0]<year || dateVal[1]<month || dateVal[2]<day){
-            appendNewChild(date, "Date must be in the future");
+            if (chk){
+                removeChild(date);
+                appendNewChild(date, "Date must be in the future");
+            } else if (!chk){
+                appendNewChild(date, "Date must be in the future");
+            }
+        } else if (chk){
+            invalidToValidInputAction(date);
+        } else if (!chk){
+            validInputAction(date);
         }
     }
 }
 
 function validateDaysForm(){
     let days = document.getElementById("days");
+    let chk = checkIfErrorExists(days);
     let emp = checkFormEmpty(days);
     if (isNaN(days.value) && !emp) {
-        appendNewChild(days, "Days must be a number");
+        if (chk){
+            removeChild(days);
+            appendNewChild(days, "days must be a number");
+        } else if (!chk){
+            appendNewChild(days, "days must be a number");
+        }
     } else if (!emp && days.value < 1 && days.value > 30){
-        appendNewChild(days, "Days must be a number between 1 and 30")
-    } else if (!emp & checkIfErrorExists(days)) {
+        if (chk){
+            removeChild(days);
+            appendNewChild(days, "days must be a number between 1 and 30");
+        } else if (!chk){
+            appendNewChild(days, "days must be a number between 1 and 30");
+        }
+    } else if (!emp && chk) {
         invalidToValidInputAction(days);
+    } else if (!emp && !chk) {
+        validInputAction(days);
     }
 }
 
 function validateCreditCardNumForm(){
     let credit = document.getElementById("credit-card");
     let emp = checkFormEmpty(credit);
+    let chk = checkIfErrorExists(credit);
     if (!emp && validateCardNumber(credit.value.trim())){
-        credit.parentNode.classList.add('input-valid');
-    } else {
-        credit.parentNode.classList.add('input-invalid');
+        if (!chk){
+            validInputAction(credit);
+        } else if (chk) {
+            invalidToValidInputAction(credit);
+        }
+    } else if (!chk && !emp) {
+        appendNewChild(credit, "must be valid credit card number");
+    } else if (!emp && chk){
+        removeChild(credit);
+        appendNewChild(credit, "must be valid credit card number");
     }
 }
 
 function validateCVVForm(){
     let CVV = document.getElementById("cvv");
-    let emp = checkFormEmpty(cvv);
+    let emp = checkFormEmpty(CVV);
+    let chk = checkIfErrorExists(CVV);
     if (isNaN(CVV.value) && !emp){
-        appendNewChild(CVV, "CVV must be a number");
+        if (chk){
+            removeChild(CVV);
+            appendNewChild(CVV, "CVV must be a number");
+        } else if (!chk){
+            appendNewChild(CVV, "CVV must be a number");
+        }
     } else if (CVV.value.length != 3 && !emp){
-        appendNewChild(CVV, "CVV must be three digits");
+        if (chk){
+            removeChild(CVV);
+            appendNewChild(CVV, "CVV must be a number with three digits");
+        } else if (!chk){
+            appendNewChild(CVV, "CVV must be a number with three digits");
+        }
+    } else if (!emp) {
+        if (chk){
+            invalidToValidInputAction(CVV);
+        } else if (!chk){
+            validInputAction(CVV);
+        }
     }
 }
 
 function validateExpDateForm(){
     let exp = document.getElementById("expiration");
     let emp = checkFormEmpty(exp);
+    let chk = checkIfErrorExists(exp);
 }
 
 function getPrice(){

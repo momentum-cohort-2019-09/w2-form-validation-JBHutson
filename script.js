@@ -73,7 +73,7 @@ function validInputAction(formId){
     }
 }
 
-function invalidInputAction(formId, message){
+function invalidInputAction(formId){
     if (formId.id != "car-year"){
         formId.parentNode.classList.add('input-invalid');
     } else if (formId.id == "car-year"){
@@ -138,7 +138,7 @@ function validateCarForm(){
         }
     } else if (isNaN(carYear.value)){
         appendNewChild(carYear, "Car year must be a number");
-    } else if (parseInt(carYear.value) <= 1900 || parseInt(carYear.value) > date.getFullYear()) {
+    } else if (parseInt(carYear.value) <= 1900 || parseInt(carYear.value) > d.getFullYear()) {
         appendNewChild(carYear, "Car year must be between 1900 and current year");
     } else if (chk){
         invalidToValidInputAction(carYear);
@@ -243,8 +243,32 @@ function validateCVVForm(){
 
 function validateExpDateForm(){
     let exp = document.getElementById("expiration");
+    let year = d.getFullYear().toString().substring(1, 3);
+    let month = d.getMonth();
+    let regex = new RegExp("^[0-9][0-9]/[0-9][0-9]$");
     let emp = checkFormEmpty(exp);
     let chk = checkIfErrorExists(exp);
+    if (regex.test(exp.value)){
+        let dateVal = exp.value.split("/");
+        if (chk && dateVal[0] >= month && dateVal[0] <= 12 && dateVal[1] >= year){
+            removeChild(exp);
+            validInputAction(exp);
+        } else if (!chk && dateVal[0] >= month && dateVal[0] <= 12 && dateVal[1] >= parseInt(year)){
+            validInputAction(exp);
+        } else if (chk){
+            removeChild(exp);
+            appendNewChild(exp, "exp date must be a valid future date");
+        } else if (!chk){
+            appendNewChild(exp, "exp date must be a valid future date");
+        }
+    } else if (!emp){
+        if (chk){
+            removeChild(exp);
+            appendNewChild(exp, "exp date must be a valid future date");
+        } else if (!chk){
+            appendNewChild(exp, "exp date must be a valid future date");
+        }
+    }
 }
 
 function getPrice(){

@@ -116,6 +116,30 @@ function luhnCheck(val) {
     return (sum % 10) == 0;
 }
 
+function checkCreditCardType(creditNum){
+    if (creditNum.charAt(0) == '4'){
+        return 'Visa';
+    } else if (creditNum.charAt(0) == '5'){
+        return 'MasterCard';
+    } else if (creditNum.charAt(0) == '6'){
+        return 'Discover Card';
+    }
+}
+
+function getTotalCost(dateToBill, daysToPark){
+    let d2 = new Date(dateToBill);
+    let cost = 0;
+    for (let i=0; i<daysToPark; i++){
+        d2 = new Date(d2.getTime() + 86400000);
+        if (d2.getDay() == 0 || d2.getDay() == 6){
+            cost += 7;
+        } else {
+            cost += 5;
+        }
+    }
+    return cost;
+}
+
 function validateNameForm(){
     let name = document.getElementById("name");
     let err = checkIfErrorExists(name);
@@ -169,6 +193,7 @@ function validateDateForm(){
             validInputAction(date);
         }
     }
+    return date.value;
 }
 
 function validateDaysForm(){
@@ -191,8 +216,10 @@ function validateDaysForm(){
         }
     } else if (!emp && chk) {
         invalidToValidInputAction(days);
+        return days.value;
     } else if (!emp && !chk) {
         validInputAction(days);
+        return days.value;
     }
 }
 
@@ -212,6 +239,7 @@ function validateCreditCardNumForm(){
         removeChild(credit);
         appendNewChild(credit, "must be valid credit card number");
     }
+    return credit.value;
 }
 
 function validateCVVForm(){
@@ -271,19 +299,26 @@ function validateExpDateForm(){
     }
 }
 
-function getPrice(){
+function getPrice(dateToBill, daysToPark, credit){
     let butt = document.getElementById("submit-button");
-    appendNewChild(butt);
+    if (document.querySelector(".error") == null){
+        let cost = getTotalCost(dateToBill, daysToPark);
+        let costText = '' + cost;
+        let creditCard = checkCreditCardType(credit);
+        let child = document.createElement('p');
+        child.innerHTML = "<span >" + "your total cost is: $" + costText + ' on your ' + creditCard + " </span>";
+        butt.parentElement.appendChild(child);
+    }
 }
 
 sub.addEventListener("click", function(event) {
     validateNameForm();
     validateCarForm();
-    validateDateForm();
-    validateDaysForm();
-    validateCreditCardNumForm();
+    let dateToBill = validateDateForm();
+    let daysToPark = validateDaysForm();
+    let credit = validateCreditCardNumForm();
     validateCVVForm();
     validateExpDateForm();
-    getPrice();
+    getPrice(dateToBill, daysToPark, credit);
     event.preventDefault();
 });

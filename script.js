@@ -133,6 +133,8 @@ function checkCreditCardType(creditNum){
         return 'MasterCard';
     } else if (creditNum.charAt(0) == '6'){
         return 'Discover Card';
+    } else {
+        return 'generic credit card'
     }
 }
 

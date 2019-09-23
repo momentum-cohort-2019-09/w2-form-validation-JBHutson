@@ -189,14 +189,11 @@ function validateCarForm(){
 
 function validateDateForm(){
     let date = document.getElementById("start-date");
-    let dateVal = date.value.split("-");
+    let d3 = new Date(date.value);
     let emp = checkFormEmpty(date);
     let chk = checkIfErrorExists(date);
-    let day = d.getDate();
-    let month = d.getMonth();
-    let year = d.getFullYear();
     if (!emp){
-        if (dateVal[0]<year || dateVal[1]<month || dateVal[2]<day){
+        if (d3.getTime() < d.getTime()){
             if (chk){
                 removeChild(date);
                 appendNewChild(date, "Date must be in the future");

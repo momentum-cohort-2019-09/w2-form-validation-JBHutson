@@ -1,6 +1,8 @@
 const sub = document.getElementById("submit-button");
 const d = new Date();
 
+// empty/error checks
+
 function checkFormEmpty(formId){
     let emp = false;
     let chk = checkIfErrorExists(formId);
@@ -37,6 +39,8 @@ function checkIfErrorExists(formId){
     return err;
 }
 
+// add/remove children
+
 function appendNewChild(formId, message){
     if (formId.id != "car-year") {
         let child = document.createElement('p');
@@ -64,6 +68,8 @@ function removeChild(formId){
         formId.parentElement.parentElement.removeChild(formId.parentElement.parentElement.childNodes[formId.parentElement.parentElement.childNodes.length-1]);
     }
 }
+
+// input actions
 
 function validInputAction(formId){
     if (formId.id != "car-year"){
@@ -93,6 +99,8 @@ function invalidToValidInputAction(formId){
     }
 }
 
+// credit card functions
+
 function validateCardNumber(number) {
     var regex = new RegExp("^[0-9]{16}$");
     if (!regex.test(number))
@@ -117,7 +125,9 @@ function luhnCheck(val) {
 }
 
 function checkCreditCardType(creditNum){
-    if (creditNum.charAt(0) == '4'){
+    if (creditNum.charAt(0) == '3'){
+        return ('American Express');
+    } else if (creditNum.charAt(0) == '4'){
         return 'Visa';
     } else if (creditNum.charAt(0) == '5'){
         return 'MasterCard';
@@ -125,6 +135,8 @@ function checkCreditCardType(creditNum){
         return 'Discover Card';
     }
 }
+
+// cost function
 
 function getTotalCost(dateToBill, daysToPark){
     let d2 = new Date(dateToBill);
@@ -139,6 +151,8 @@ function getTotalCost(dateToBill, daysToPark){
     }
     return cost;
 }
+
+// individual input validations
 
 function validateNameForm(){
     let name = document.getElementById("name");
@@ -207,7 +221,7 @@ function validateDaysForm(){
         } else if (!chk){
             appendNewChild(days, "days must be a number");
         }
-    } else if (!emp && days.value < 1 && days.value > 30){
+    } else if (!emp && parseInt(days.value) >= 30 || parseInt(days.value) <= 1){
         if (chk){
             removeChild(days);
             appendNewChild(days, "days must be a number between 1 and 30");
@@ -216,11 +230,10 @@ function validateDaysForm(){
         }
     } else if (!emp && chk) {
         invalidToValidInputAction(days);
-        return days.value;
     } else if (!emp && !chk) {
         validInputAction(days);
-        return days.value;
     }
+    return days.value;
 }
 
 function validateCreditCardNumForm(){
@@ -271,14 +284,14 @@ function validateCVVForm(){
 
 function validateExpDateForm(){
     let exp = document.getElementById("expiration");
-    let year = d.getFullYear().toString().substring(1, 3);
+    let year = d.getFullYear().toString().substring(2, 4);
     let month = d.getMonth();
     let regex = new RegExp("^[0-9][0-9]/[0-9][0-9]$");
     let emp = checkFormEmpty(exp);
     let chk = checkIfErrorExists(exp);
     if (regex.test(exp.value)){
         let dateVal = exp.value.split("/");
-        if (chk && dateVal[0] >= month && dateVal[0] <= 12 && dateVal[1] >= year){
+        if (chk && dateVal[0] >= month && dateVal[0] <= 12 && dateVal[1] >= parseInt(year)){
             removeChild(exp);
             validInputAction(exp);
         } else if (!chk && dateVal[0] >= month && dateVal[0] <= 12 && dateVal[1] >= parseInt(year)){
@@ -299,17 +312,30 @@ function validateExpDateForm(){
     }
 }
 
+// get and append price
+
 function getPrice(dateToBill, daysToPark, credit){
     let butt = document.getElementById("submit-button");
     if (document.querySelector(".error") == null){
         let cost = getTotalCost(dateToBill, daysToPark);
         let costText = '' + cost;
         let creditCard = checkCreditCardType(credit);
-        let child = document.createElement('p');
-        child.innerHTML = "<span >" + "your total cost is: $" + costText + ' on your ' + creditCard + " </span>";
-        butt.parentElement.appendChild(child);
+        if (butt.parentElement.lastElementChild.classList.contains('price')){
+            let child = document.createElement('p');
+            child.innerHTML = "<span >" + "your total cost is: $" + costText + ' on your ' + creditCard + " </span>";
+            child.classList.add("price")
+            removeChild(butt);
+            butt.parentElement.appendChild(child);
+        } else {
+            let child = document.createElement('p');
+            child.innerHTML = "<span >" + "your total cost is: $" + costText + ' on your ' + creditCard + " </span>";
+            child.classList.add("price")
+            butt.parentElement.appendChild(child);
+        }
     }
 }
+
+// main
 
 sub.addEventListener("click", function(event) {
     validateNameForm();
